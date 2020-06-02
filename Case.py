@@ -3,7 +3,7 @@ class Case:
 
     def __init__(self):
         self.fields = {}
-        self.agent = False
+        self.agent = None
 
     def updateField(self, name, value):
         if name in self.fields:
@@ -12,10 +12,14 @@ class Case:
             self.fields[name] = value
 
         if name in Case.maxFields:
-            if value > Case.maxFields[name][1]: Case.maxFields[name][1] = value
-            if value < Case.maxFields[name][0]: Case.maxFields[name][0] = value
+            if self.fields[name] > Case.maxFields[name][1]: Case.maxFields[name][1] = self.fields[name]
+
+            if self.fields[name] < Case.maxFields[name][0]: Case.maxFields[name][0] = self.fields[name]
         else:
             Case.maxFields[name] = [value, value]
 
     def isAgent(self):
         return self.agent
+
+    def __repr__(self):
+        return str(self.fields)

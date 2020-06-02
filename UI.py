@@ -1,5 +1,6 @@
 from World import World
-from Agent import Food
+from Agent import *
+from Case import Case
 
 import tkinter as tk
 from Button import Button
@@ -16,7 +17,8 @@ class UI:
         self.root.geometry("{0}x{1}".format(size+200, size))
 
         self.canvas = tk.Canvas(width=self.width, height=self.height, bd=0, highlightthickness=0)
-        self.canvas.bind('<Button-1>', self.onClick)
+        self.canvas.bind('<Button-1>', self.onLeftClick)
+        self.canvas.bind('<Button-2>', self.onRightClick)
         self.root.bind("<Configure>", self.onResize)
         self.canvas.pack(side=tk.LEFT)
 
@@ -26,6 +28,8 @@ class UI:
         self.button = Button(self.canvas_menu, 'UI/off.png', 20, 20, 'UI/on.png')
         self.canvas_menu.bind('<Button-1>', self.btnClick)
         self.canvas_menu.bind('<Motion>', self.motion)
+
+        self.root.bind('<Return>', self.test)
 
         self.selected = None
 
@@ -52,16 +56,20 @@ class UI:
         self.canvas.delete("all")
         self.world.tick()
 
+        self.drawField('food')
+
         for i in range(self.world.size ** 2):
-            if self.world.grid[i].isAgent():
+
+            if type(self.world.grid[i].agent) == Veine:
+                color = 'yellow'
+            elif type(self.world.grid[i].agent) == Food:
                 color = 'red'
             else:
                 color = 'white'
             self.drawCase(i, color)
 
-        #self.drawField('food')
 
-        if self.selected != None: self.drawNeighborhood(self.selected[0], self.selected[1])
+        #if self.selected != None: self.drawNeighborhood(self.selected[0], self.selected[1])
 
     def drawCase(self, i, color):
         (yStart, xStart) = self.world.pos2coord(i)
@@ -71,7 +79,7 @@ class UI:
         self.canvas.create_rectangle(xStart * caseWidth, yStart * caseHeight, xStart * caseWidth + caseWidth,
                                      yStart * caseHeight + caseHeight, outline="#cccccc", fill=color)
 
-    def onClick(self, e):
+    def onRightClick(self, e):
         caseWidth = self.width / self.world.size
         col = e.x // caseWidth
         line = e.y // caseWidth
@@ -79,9 +87,29 @@ class UI:
 
         self.world.grid[pos].agent = True
 
-        self.world.agents.append(Food('Champignon', line, col))
+        veine = Veine(line, col)
+
+        self.world.grid[pos].agent = veine
+        self.world.agents.append(veine)
         self.selected = (line, col)
 
+        self.update()
+
+    def onLeftClick(self, e):
+        caseWidth = self.width / self.world.size
+        col = e.x // caseWidth
+        line = e.y // caseWidth
+        pos = int(self.world.coord2pos(line, col))
+
+        food = Food('Champignon', line, col)
+
+        self.world.grid[pos].agent = food
+        self.world.agents.append(food)
+
+        self.selected = (line, col)
+        self.update()
+
+    def test(self, e):
         self.update()
 
     def onResize(self, e):
@@ -95,21 +123,24 @@ class UI:
         pass
 
     def drawField(self, typeField):
-        for i in range(self.world.size ** 2):
-            if typeField in self.world.grid[i].fields:
-                v = self.world.grid[i].fields[typeField]
-                maxColor = self.world.grid[i].maxFields[typeField][1]
-                color = int(v / maxColor * 255)
+        if typeField in Case.maxFields:
+            maxColor = Case.maxFields[typeField][1]
+            print(maxColor)
+            for i in range(self.world.size ** 2):
+                if typeField in self.world.grid[i].fields:
+                    v = self.world.grid[i].fields[typeField]
+                    #print(maxColor)
+                    color = int(v / maxColor * 255)
 
-                rgb = (color, 0, 0)
-                color = "#%02x%02x%02x" % rgb
-                self.drawCase(i, color)
+                    rgb = (color, 0, 0)
+                    color = "#%02x%02x%02x" % rgb
+                    self.drawCase(i, color)
 
     def drawNeighborhood(self, line, col):
-        for i in range(1, 10):
+        for i in range(1, 5):
             neighbors = self.world.neighbor(line, col, i)
 
-            color = int(i / 10 * 255)
+            color = int(i / 5 * 255)
             rgb = (0, color, 0)
             color = "#%02x%02x%02x" % rgb
             for n in neighbors:

@@ -1,10 +1,13 @@
 # -*- coding: utf-8 -*-
-
+from Agent import *
 from Case import Case
+from random import randint
 
 
 class World:
     """
+        TODO: Trouver une solution pour éviter les séparations
+        TODO: Bouffe
         class used to manage the simulation
     """
 
@@ -39,6 +42,8 @@ class World:
         """
         Compute the field emmited by each agent on the grid
         """
+        self.resetFields()
+
         for agent in self.agents:
             for key, e in agent.emetteurs.items():
                 d = e.power / e.decay
@@ -59,24 +64,82 @@ class World:
         """
         l = []
         for y in range(int(col - n), int(col + n + 1)):
-            p = self.coord2pos(line - n, y)
-            if 0 < p < self.size ** 2: l.append(p)
-            p = self.coord2pos(line + n, y)
-            if 0 < p < self.size ** 2: l.append(p)
+            if line - n >= 0 and 0 <= y < self.size:
+                p = self.coord2pos(line - n, y)
+                l.append(p)
+
+            if line + n < self.size and 0 <= y < self.size:
+                p = self.coord2pos(line + n, y)
+                l.append(p)
 
         for x in range(int(line - n + 1), int(line + n)):
-            p = self.coord2pos(x, col + n)
-            if 0 < p < self.size ** 2: l.append(p)
-            p = self.coord2pos(x, col - n)
-            if 0 < p < self.size ** 2: l.append(p)
+            if col - n >= 0 and 0 <= x < self.size:
+                p = self.coord2pos(x, col - n)
+                l.append(p)
+
+            if col + n < self.size and 0 <= x < self.size:
+                p = self.coord2pos(x, col + n)
+                l.append(p)
 
         return set(l)
 
+    def resetFields(self):
+        for case in self.grid:
+            case.fields = {}
+
     def birthControl(self):
-        pass
+        if Veine.count >= Veine.max: return
+        best = None
+        bestPos = None
+        for agent in self.agents:
+            if type(agent) == Veine:
+                neighbor = self.neighbor(*agent.coord, 1)
+                for n in neighbor:
+                    if self.grid[n].agent is None:
+                        if best is None:
+                            best = self.grid[n]
+                            bestPos = n
+                        elif 'food' in self.grid[n].fields and 'food' not in best.fields:
+                            best = self.grid[n]
+                            bestPos = n
+                        elif 'food' in self.grid[n].fields and 'food' in best.fields:
+                            if self.grid[n].fields['food'] > best.fields['food']:
+                                best = self.grid[n]
+                                bestPos = n
+                        elif 'food' not in self.grid[n].fields and 'food' in best.fields:
+                            continue
+                        elif randint(0, 10) > 5:
+                            best = self.grid[n]
+                            bestPos = n
+
+        if best != None:
+            newVeine = Veine(*self.pos2coord(bestPos))
+            best.agent = newVeine
+            self.agents.append(newVeine)
 
     def sarahConnor(self):
-        pass
+        if Veine.count < Veine.max: return
+
+        worst = None
+        for agent in self.agents:
+            if type(agent) == Veine:
+                pos = self.coord2pos(*agent.coord)
+
+                if worst is None:
+                    worst = self.grid[pos]
+                elif 'food' not in self.grid[pos].fields and 'food' in worst.fields:
+                    worst = self.grid[pos]
+                elif 'food' not in self.grid[pos].fields and 'food' not in worst.fields:
+                    if randint(0, 10) > 5:
+                        worst = self.grid[pos]
+                elif 'food' in self.grid[pos].fields and 'food' in worst.fields:
+                    if self.grid[pos].fields['food'] < worst.fields['food']:
+                        worst = self.grid[pos]
+
+        if worst is not None:
+            Veine.count -= 1
+            self.agents.remove(worst.agent)
+            worst.agent = None
 
     def tick(self):
         self.setField()

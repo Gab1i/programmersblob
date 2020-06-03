@@ -8,6 +8,7 @@ class World:
     """
         TODO: Trouver une solution pour éviter les séparations
         TODO: Bouffe
+
         class used to manage the simulation
     """
 
@@ -27,7 +28,7 @@ class World:
         """
         line = pos // self.size
         col = pos % self.size
-        return (line, col)
+        return line, col
 
     def coord2pos(self, line, col):
         """
@@ -40,7 +41,7 @@ class World:
 
     def setField(self):
         """
-        Compute the field emmited by each agent on the grid
+        Compute the field emitted by each agent on the grid
         """
         self.resetFields()
 
@@ -143,9 +144,99 @@ class World:
 
     def tick(self):
         self.setField()
-        self.sarahConnor()
-        self.birthControl()
+
+        self.action()
+
+        #self.sarahConnor()
+        #self.birthControl()
+
+    def getBestWorst(self):
+        worst = None
+        best = None
+        bestPos = None
+
+        for agent in self.agents:
+            if type(agent) == Veine:
+                pos = self.coord2pos(*agent.coord)
+
+                neighbor = self.neighbor(*agent.coord, 1)
+                for n in neighbor:
+                    if type(self.grid[n].agent) != Food and self.grid[n].agent is None:
+                        if best is None:
+                            best = self.grid[n]
+                            bestPos = n
+                        elif 'food' in self.grid[n].fields and 'food' not in best.fields:
+                            best = self.grid[n]
+                            bestPos = n
+                        elif 'food' in self.grid[n].fields and 'food' in best.fields:
+                            if self.grid[n].fields['food'] > best.fields['food']:
+                                best = self.grid[n]
+                                bestPos = n
+                        elif 'food' not in self.grid[n].fields and 'food' in best.fields:
+                            continue
+                        elif randint(0, 10) > 5:
+                            best = self.grid[n]
+                            bestPos = n
+
+                        if worst is None:
+                            worst = self.grid[pos]
+                        elif 'food' not in self.grid[pos].fields and 'food' in worst.fields:
+                            worst = self.grid[pos]
+                        elif 'food' not in self.grid[pos].fields and 'food' not in worst.fields:
+                            if randint(0, 10) > 5:
+                                worst = self.grid[pos]
+                        elif 'food' in self.grid[pos].fields and 'food' in worst.fields:
+                            if self.grid[pos].fields['food'] < worst.fields['food']:
+                                worst = self.grid[pos]
+
+        return best, bestPos, worst
+
+    def lookForFood(self, line, col):
+        print(self.neighbor(line, col, 1))
+        for n in self.neighbor(line, col, 1):
+            print(self.grid[n].agent)
+            if type(self.grid[n].agent) == Food:
+                return self.grid[n].agent
+
+        return False
+
+    def action(self):
+        best, bestPos, worst = self.getBestWorst()
+        print('==================')
+        for agent in self.agents:
+            print(agent)
+            if type(agent) == Veine:
+                f = self.lookForFood(*agent.coord)
+                print('je cherche')
+                if f != False:
+                    agent.feed(f)
+                    print('J\'ai à manger !! Youpi')
+
+            if type(agent) == Food:
+                print("Je suis en {0}".format(self.coord2pos(*agent.coord)))
+                if agent.qte == 0:
+                    self.agents.remove(agent)
+                    pos = self.coord2pos(*agent.coord)
+                    self.grid[pos].agent = None
+
+        self.kill(worst)
+        self.birth(best, bestPos)
 
     def run(self, loop):
         for i in range(loop):
             self.tick()
+
+    def kill(self, worst):
+        if Veine.count < Veine.max: return
+
+        if worst is not None:
+            Veine.count -= 1
+            self.agents.remove(worst.agent)
+            worst.agent = None
+
+    def birth(self, best, bestPos):
+        if best != None:
+            newVeine = Veine(*self.pos2coord(bestPos))
+            best.agent = newVeine
+            self.agents.append(newVeine)
+

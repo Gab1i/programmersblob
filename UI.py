@@ -101,7 +101,8 @@ class UI:
         line = e.y // caseWidth
         pos = int(self.world.coord2pos(line, col))
 
-        food = Food('Champignon', line, col)
+        nutriment = {'glucide': 10, 'proteines': 10}
+        food = Food('Champignon', line, col, nutriment, 10)
 
         self.world.grid[pos].agent = food
         self.world.agents.append(food)
@@ -125,7 +126,7 @@ class UI:
     def drawField(self, typeField):
         if typeField in Case.maxFields:
             maxColor = Case.maxFields[typeField][1]
-            print(maxColor)
+            #print(maxColor)
             for i in range(self.world.size ** 2):
                 if typeField in self.world.grid[i].fields:
                     v = self.world.grid[i].fields[typeField]

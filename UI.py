@@ -56,10 +56,7 @@ class UI:
         self.canvas.delete("all")
         self.world.tick()
 
-        self.drawField('food')
-
         for i in range(self.world.size ** 2):
-
             if type(self.world.grid[i].agent) == Veine:
                 color = 'yellow'
             elif type(self.world.grid[i].agent) == Food:
@@ -67,6 +64,8 @@ class UI:
             else:
                 color = 'white'
             self.drawCase(i, color)
+
+        self.drawField('food')
 
 
         #if self.selected != None: self.drawNeighborhood(self.selected[0], self.selected[1])

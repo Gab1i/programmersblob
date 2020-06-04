@@ -6,9 +6,6 @@ from random import randint
 
 class World:
     """
-        TODO: Trouver une solution pour éviter les séparations
-        TODO: Bouffe
-
         class used to manage the simulation
     """
 
@@ -54,6 +51,38 @@ class World:
                     neighbors = self.neighbor(line, col, i)
                     for n in neighbors:
                         self.grid[n].updateField(e.name, e.power - e.decay * i)
+
+    def vonNeumannNeighborhood(self, line, col):
+        l = []
+
+        if line >= 0:
+            l.append(self.coord2pos(line - 1, col))
+
+        if line < self.size - 1:
+            l.append(self.coord2pos(line + 1, col))
+
+        if col >= 0:
+            l.append(self.coord2pos(line, col - 1))
+
+        if col < self.size - 1:
+            l.append(self.coord2pos(line, col + 1))
+
+        return l
+
+    def angularNeighborhood(self, line, col):
+        l = []
+
+        if line >= 0:
+            if col >= 0: l.append(self.coord2pos(line - 1, col - 1))
+            if col < self.size - 1: l.append(self.coord2pos(line - 1, col + 1))
+
+        if col >= 0 and line < self.size - 1:
+             l.append(self.coord2pos(line + 1, col - 1))
+
+        if col < self.size - 1 and line < self.size - 1:
+            l.append(self.coord2pos(line + 1, col + 1))
+
+        return l
 
     def neighbor(self, line, col, n):
         """
@@ -150,8 +179,7 @@ class World:
         #self.sarahConnor()
         #self.birthControl()
 
-    def getBestWorst(self):
-        worst = None
+    def getBest(self):
         best = None
         bestPos = None
 
@@ -174,22 +202,43 @@ class World:
                                 bestPos = n
                         elif 'food' not in self.grid[n].fields and 'food' in best.fields:
                             continue
-                        elif randint(0, 10) > 5:
+                        elif randint(0, 10) > 8:
                             best = self.grid[n]
                             bestPos = n
 
+        return best, bestPos
+
+    def getWorst(self):
+        worst = None
+        for agent in self.agents:
+            if type(agent) == Veine:
+                howManyVeines = 0
+                for n in self.vonNeumannNeighborhood(*agent.coord):
+                    if type(self.grid[n].agent) == Veine: howManyVeines += 1
+                if howManyVeines > 1: continue
+
+                howManyVeines = 0
+                for n in self.angularNeighborhood(*agent.coord):
+                    if type(self.grid[n].agent) == Veine: howManyVeines += 1
+                if howManyVeines > 1: continue
+
+                pos = self.coord2pos(*agent.coord)
+
+                neighbor = self.neighbor(*agent.coord, 1)
+                for n in neighbor:
+                    if type(self.grid[n].agent) != Food and self.grid[n].agent is None:
                         if worst is None:
                             worst = self.grid[pos]
                         elif 'food' not in self.grid[pos].fields and 'food' in worst.fields:
                             worst = self.grid[pos]
                         elif 'food' not in self.grid[pos].fields and 'food' not in worst.fields:
-                            if randint(0, 10) > 5:
+                            if randint(0, 10) > 8:
                                 worst = self.grid[pos]
                         elif 'food' in self.grid[pos].fields and 'food' in worst.fields:
                             if self.grid[pos].fields['food'] < worst.fields['food']:
                                 worst = self.grid[pos]
 
-        return best, bestPos, worst
+        return worst
 
     def lookForFood(self, line, col):
         print(self.neighbor(line, col, 1))
@@ -201,8 +250,12 @@ class World:
         return False
 
     def action(self):
-        best, bestPos, worst = self.getBestWorst()
-        print('==================')
+
+        worst = self.getWorst()
+        self.kill(worst)
+
+        best, bestPos = self.getBest()
+
         for agent in self.agents:
             print(agent)
             if type(agent) == Veine:
@@ -219,7 +272,7 @@ class World:
                     pos = self.coord2pos(*agent.coord)
                     self.grid[pos].agent = None
 
-        self.kill(worst)
+
         self.birth(best, bestPos)
 
     def run(self, loop):

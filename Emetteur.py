@@ -1,5 +1,7 @@
 class Emetteur:
-    def __init__(self, name, power, decay):
+    def __init__(self, name, pos, power, decay):
         self.name = name
         self.power = power
         self.decay = decay
+        self.pos = pos
+

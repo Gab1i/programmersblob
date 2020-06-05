@@ -1,4 +1,5 @@
-from UI import UI
+from Window import Window
+
 
 if __name__ == "__main__":
-    UI(600)
+    win = Window(800, 700)

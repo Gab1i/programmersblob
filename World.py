@@ -73,8 +73,12 @@ class World:
         self.ComputeField()
 
         self._blob.Feed()
+
         self._blob.Kill()
         self._blob.Add()
+        self._blob.Add()
+        #self._blob.Grow()
+        #print(self._blob._cases)
 
     def ComputeField(self):
         """

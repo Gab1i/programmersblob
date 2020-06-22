@@ -12,7 +12,6 @@ class Food(Emetteur):
         p = max(0, howMuch - self.quantity)
         self.quantity = q
 
-        print("Je me fais manger")
         if self.quantity <= 0: self.status = False
         return p
 

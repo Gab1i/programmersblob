@@ -4,4 +4,5 @@ class Emetteur:
         self.power = power
         self.decay = decay
         self.pos = pos
+        self.distance = int(abs(power) / abs(decay))
 

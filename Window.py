@@ -1,4 +1,5 @@
 import tkinter as tk
+import tkinter.font as tkFont
 
 from Emetteur import Emetteur
 from World import *
@@ -20,6 +21,14 @@ class Window:
         self.canvas = tk.Canvas(width=self.width, height=self.height, bd=0, highlightthickness=0)
         self.canvas.pack(side=tk.LEFT)
 
+        self.menu = tk.Frame(width=300, height=self.height)
+        #self.menu.pack()
+
+        self.nbTickText = tk.Text(self.menu)
+        self.nbTickText.pack()
+
+        font = tkFont.Font(family="Helvetica", size=36, weight="bold")
+
         self.canvas.bind('<Button-1>', self._onLeftClick)
         self.canvas.bind('<Button-2>', self._onRightClick)
 
@@ -27,20 +36,27 @@ class Window:
 
         # Initialisation du monde
         self._grid = []
-        self._createWorld(50, 50, 134)
-
-
-
+        self.text = []
+        self._createWorld(80, 80, 134)
 
         self.root.mainloop()
 
     def _onEnter(self, evt):
+        #self.world.Tick()
+        #self._drawWorld()
+        self.round()
+
+
+    def round(self):
         self.world.Tick()
         self._drawWorld()
+        self.canvas.after(1, self.round)
+
+
 
     def _onLeftClick(self, evt):
         pos = self._evtToPos(evt)
-        self.world.AddEmitter(Food('Champignon', pos, 10, -1, 1), pos)
+        self.world.AddEmitter(Food('Champignon', pos, 10, -1, 10), pos)
         self._drawWorld()
 
     def _onRightClick(self, evt):
@@ -83,15 +99,26 @@ class Window:
                 color = '#626b3e'
 
             for a in c.agents:
-                if type(a) == Veine: color = '#bc6c25'
-                elif type(a) == Food: color = '#b64e3d'
+                if type(a) == Food: color = '#b64e3d'
                 elif type(a) == Emetteur:
                     if a.name == 'Petite Lampe de Bureau qui Perce à travers les feuilles d\'arbre c\'est un peu artistique': color = '#367077'
+
+            if c.Veine is not None: color = '#bc6c25'
 
             self._updateCase(c, color)
 
     def _updateCase(self, case, color):
         self.canvas.itemconfig(self._grid[case.position], fill=color)
+
+        # show children number of each veine portion
+        if case.Veine is not None:
+            t = '' #round(case.Veine._size,2)
+        else:
+            t = ''
+        self.canvas.itemconfig(self.text[case.position], text=t)
+
+        # show position of each case
+        #self.canvas.itemconfig(self.text[case.position], text=case.child)
 
     def _drawCase(self, case, caseWidth, caseHeight, color):
         (yStart, xStart) = case.Coord
@@ -99,8 +126,8 @@ class Window:
         rect = self.canvas.create_rectangle(xStart * caseWidth, yStart * caseHeight, xStart * caseWidth + caseWidth,
                                      yStart * caseHeight + caseHeight, outline="#cccccc", fill=color)
 
-        # self.canvas.create_text(xStart * caseWidth + 10, yStart * caseHeight + 10, text=str(case._value))
-
+        txt = self.canvas.create_text(xStart * caseWidth + caseWidth/2, yStart * caseHeight + caseHeight/2, text='', font=('Purisa',8))
+        self.text.append(txt)
         # AFFICHER LES POSITIONS ET COORDONNEES
         # self.canvas.create_text(xStart * caseWidth + 10, yStart * caseHeight + 10, text=str(case.position))
         # self.canvas.create_text(xStart * caseWidth + 20, yStart * caseHeight + 25, text='({0}, {1})'.format(*case.Coord))

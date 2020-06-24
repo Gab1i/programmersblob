@@ -87,13 +87,14 @@ class World:
         self.resetFields()
 
         for e in self._emitters:
-            d = int(abs(e.power) / abs(e.decay))
+            d = e.decay
 
-            for i in range(d):
+            for i in range(abs(d)):
                 neighbors = self.Neighborhood(self.grid[e.pos], i)
 
                 for n in neighbors:
-                    n.setField(e.power + (e.decay * i))
+                    n.setField(e.power + ((e.power/e.decay) * i))
+                    print(e.power + ((e.power/e.decay) * i))
 
     def resetFields(self):
         for c in self.grid:

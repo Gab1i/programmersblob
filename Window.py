@@ -37,7 +37,7 @@ class Window:
         # Initialisation du monde
         self._grid = []
         self.text = []
-        self._createWorld(80, 80, 134)
+        self._createWorld(30, 30, 134)
 
         self.root.mainloop()
 
@@ -46,23 +46,21 @@ class Window:
         #self._drawWorld()
         self.round()
 
-
     def round(self):
         self.world.Tick()
         self._drawWorld()
         self.canvas.after(1, self.round)
 
-
-
     def _onLeftClick(self, evt):
         pos = self._evtToPos(evt)
-        self.world.AddEmitter(Food('Champignon', pos, 10, -1, 10), pos)
+        self.world.AddEmitter(Food('Flamby', pos, -10, 10, 0.8, 1/8), pos)
         self._drawWorld()
 
     def _onRightClick(self, evt):
         pos = self._evtToPos(evt)
-        self.world.AddEmitter(Emetteur('Petite Lampe de Bureau qui Perce à travers les feuilles d\'arbre c\'est un peu artistique'
-                                       , pos, -5, 1), pos)
+        #self.world.AddEmitter(Emetteur('Petite Lampe de Bureau qui Perce à travers les feuilles d\'arbre c\'est un peu artistique'
+        #                              , pos, -5, 1), pos)
+        self.world.AddEmitter(Food('Flanbeurk', pos, -10, 10, 0.5, 1/8), pos)
         self._drawWorld()
 
     def _evtToPos(self, evt):
@@ -118,7 +116,7 @@ class Window:
         self.canvas.itemconfig(self.text[case.position], text=t)
 
         # show position of each case
-        #self.canvas.itemconfig(self.text[case.position], text=case.child)
+        self.canvas.itemconfig(self.text[case.position], text= round(case._value, 2))
 
     def _drawCase(self, case, caseWidth, caseHeight, color):
         (yStart, xStart) = case.Coord
@@ -131,6 +129,7 @@ class Window:
         # AFFICHER LES POSITIONS ET COORDONNEES
         # self.canvas.create_text(xStart * caseWidth + 10, yStart * caseHeight + 10, text=str(case.position))
         # self.canvas.create_text(xStart * caseWidth + 20, yStart * caseHeight + 25, text='({0}, {1})'.format(*case.Coord))
+
 
         return rect
 

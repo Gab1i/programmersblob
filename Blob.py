@@ -14,6 +14,18 @@ class Blob:
         self._cases = []
         self._neighborhood = []
 
+        # self._proteines = 0
+        # self._glucides = 0
+
+        self._nbVeines = 5 # glucide
+        self._masse = 5 # proteines
+
+        # nbVeine -- + masse -- => sclerote ou sporulation (question : la difference sur l'environnement)
+        # mode exploration : (moins de nutriment=proteines+glucides) ca s'étend, plus de veines
+        # mode exploitation :
+
+        self._substancesDiversesEtVariees = {}
+
         v = self._createVeine(None, self.world.grid[pos])
         self._createVeine(v, self.world.grid[max(pos - 1, 0)])
 
@@ -28,6 +40,14 @@ class Blob:
         # Champ d'agitation - Tester
 
         self._behavior = 'Exploration'
+
+    def _deathRatio(self):
+        # ratio de mort > XX tu meurs
+        return self._nbVeines / self._masse
+
+    def _splitRatio(self):
+        # ratio de split > XX # tu split
+        return self._masse / self._nbVeines
 
     def _createVeine(self, veineParent, case):
         v = Veine(veineParent)
@@ -127,6 +147,7 @@ class Blob:
         return theChoice[0], theChoice[1]
 
     def _findTheBestLiving(self):
+        # Cherche le meilleur en fonction de la distance au mangeage
         best = []
         maxDetected = -10
 
@@ -139,6 +160,35 @@ class Blob:
                     distance = self._tchebychevDistance(c.position, e.pos)
                     if distance <= e.distance:
                         powerDetected = e.power + (e.decay * distance)
+                        if powerDetected > maxDetected:
+                            maxDetected = powerDetected
+                            best = [c]
+                        elif powerDetected == maxDetected:
+                            best.append(c)
+
+        if len(best) == 0:
+            return choice(availables)
+        if len(best) == 1:
+            return best[0]
+
+        return choice(best)
+
+    def _findTheBestLiving(self):
+        # Cherche le meilleur en fonction du contenu du mangeage
+        # revoir ça à un moment
+        best = []
+        maxDetected = -10
+
+        availables = []
+
+        for c in self._cases:
+            if self._hasAvailableNeighbors(c):
+                availables.append(c)
+
+                for e in self.world._emitters:
+                    distance = self._tchebychevDistance(c.position, e.pos)
+                    if distance <= e.distance:
+                        powerDetected = e.power + ((e.power/e.decay) * distance)
                         if powerDetected > maxDetected:
                             maxDetected = powerDetected
                             best = [c]
@@ -226,6 +276,8 @@ class Blob:
                 for a in c.agents:
                     if type(a) == Food: food = a
 
-                self._max += 1
-                food.Eat(1)
+                qte = food.Eat()
+                self._masse += qte['proteine']
+                self._nbVeines += qte['glucide']
+
                 if not food.status: self.world.DeleteAgent(food, c.position)

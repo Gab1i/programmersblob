@@ -127,24 +127,14 @@ class Blob:
         theChoice = choice(best)
         return theChoice[0], theChoice[1]
 
-    def _findBest(self):
-        # Code qui marche
-        best = []
 
-        if all(n[1].mucus for n in self._neighborhood):
-            return choice(self._neighborhood)
 
-        for c in self._neighborhood:
-            if not c[1].mucus:
-                if len(best) == 0:
-                    best.append(c)
-                elif c[1].getField() > best[0][1].getField():
-                    best = [c]
-                elif c[1].getField() == best[0][1].getField():
-                    best.append(c)
+    def _availableWithMucus(self, case):
+        neighbors = self.world.Neighborhood(case)
+        for c in neighbors:
+            if c.Veine is None: return True
 
-        theChoice = choice(best)
-        return theChoice[0], theChoice[1]
+        return False
 
     def _findTheBestLiving(self):
         # Cherche le meilleur en fonction de la distance au mangeage
@@ -152,14 +142,19 @@ class Blob:
         maxDetected = -10
 
         availables = []
+        lastChoice = []
 
         for c in self._cases:
+            if self._availableWithMucus(c):
+                lastChoice.append(c)
             if self._hasAvailableNeighbors(c):
                 availables.append(c)
                 for e in self.world._emitters:
                     distance = self._tchebychevDistance(c.position, e.pos)
                     if distance <= e.distance:
-                        powerDetected = e.power + (e.decay * distance)
+                        #powerDetected = e.power + (e.decay * distance) + c._value
+                        #powerDetected = e.power + (e.decay * distance)
+                        powerDetected = c._value
                         if powerDetected > maxDetected:
                             maxDetected = powerDetected
                             best = [c]
@@ -167,36 +162,10 @@ class Blob:
                             best.append(c)
 
         if len(best) == 0:
-            return choice(availables)
-        if len(best) == 1:
-            return best[0]
-
-        return choice(best)
-
-    def _findTheBestLiving(self):
-        # Cherche le meilleur en fonction du contenu du mangeage
-        # revoir ça à un moment
-        best = []
-        maxDetected = -10
-
-        availables = []
-
-        for c in self._cases:
-            if self._hasAvailableNeighbors(c):
-                availables.append(c)
-
-                for e in self.world._emitters:
-                    distance = self._tchebychevDistance(c.position, e.pos)
-                    if distance <= e.distance:
-                        powerDetected = e.power + ((e.power/e.decay) * distance)
-                        if powerDetected > maxDetected:
-                            maxDetected = powerDetected
-                            best = [c]
-                        elif powerDetected == maxDetected:
-                            best.append(c)
-
-        if len(best) == 0:
-            return choice(availables)
+            if len(availables) == 0:
+                return choice(lastChoice)
+            else:
+                return choice(availables)
         if len(best) == 1:
             return best[0]
 
@@ -212,13 +181,21 @@ class Blob:
     def _letsMakeLive(self, case):
         neighbors = self.world.Neighborhood(case)
         available = []
+        withMucus = []
         for c in neighbors:
             if c.Veine is None and not c.mucus: available.append(c)
+            if c.Veine is None: withMucus.append(c)
 
-        nb = randint(0, len(available))
-        #for i in range(1):
+        if len(available) == 0:
+            nb = randint(0, len(withMucus))
+            self._createVeine(case.Veine, choice(withMucus))
+
+        else:
+            nb = randint(0, len(available))
+            self._createVeine(case.Veine, choice(available))
+
+        #for i in range(nb):
         #   self._createVeine(case.Veine, available.pop())
-        self._createVeine(case.Veine, choice(available))
 
     def _tchebychevDistance(self, posA, posB):
         (xA, yA) = self.world.pos2coord(posA)
@@ -257,7 +234,7 @@ class Blob:
             # self._destroyVeine(w)
 
             w.mucus = True
-            self.world.AddEmitter(Emetteur('Le Mucus', w.position, -2, 1), w.position)
+            self.world.AddEmitter(Emetteur('Le Mucus', w.position, -3, 1), w.position)
             self._destroyVeine(w)
 
     def Add(self):

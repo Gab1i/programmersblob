@@ -93,8 +93,10 @@ class World:
                 neighbors = self.Neighborhood(self.grid[e.pos], i)
 
                 for n in neighbors:
-                    n.setField(e.power + ((e.power/e.decay) * i))
-                    print(e.power + ((e.power/e.decay) * i))
+                    if e.name == "Le Mucus": n._value = (e.power + ((e.power/e.decay) * i))
+                    else: n.setField(e.power + ((e.power/e.decay) * i))
+
+
 
     def resetFields(self):
         for c in self.grid:

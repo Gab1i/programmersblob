@@ -263,6 +263,8 @@ class Blob:
     def Add(self):
         # if len(self._veines) < self._max:
         #   self._createVeine(*self._findBest())
+
+
         if len(self._veines) < self._max:
             case = self._findTheBestLiving()
             self._letsMakeLive(case)
@@ -279,5 +281,7 @@ class Blob:
                 qte = food.Eat()
                 self._masse += qte['proteine']
                 self._nbVeines += qte['glucide']
+
+                self._max = int(self._nbVeines)
 
                 if not food.status: self.world.DeleteAgent(food, c.position)

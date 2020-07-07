@@ -15,6 +15,8 @@ class Case:
         self.child = 0
         self.children = []
         self.parent = None
+        self.Spores = []
+
 
     def setParent(self, parent):
         self.parent = parent

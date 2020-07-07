@@ -7,8 +7,18 @@ class World:
         self.col = col
         self.grid = [ Case(i, (line, col)) for i in range(line * col) ]
 
-        self._blob = Blob(self, pos)
+        self._blobs = [Blob(self, pos)]
         self._emitters = []
+
+        self._light = 1
+
+        # -1 : monde sec
+        # 0 : monde normal
+        # 1 : monde très humide
+        self._moisture = 1
+
+        self._temperature = 27
+
         #self.AddAgent(self._blob, pos)
 
     def Neighborhood(self, case, n=1):
@@ -42,6 +52,8 @@ class World:
 
         return set(l)
 
+
+
     def pos2coord(self, pos):
         """
         Convert position to coordinates
@@ -72,13 +84,66 @@ class World:
     def Tick(self):
         self.ComputeField()
 
-        self._blob.Feed()
+        for blob in self._blobs:
+            blob.Moisturize(self._moisture)
 
-        self._blob.Kill()
-        self._blob.Add()
-        self._blob.Add()
-        #self._blob.Grow()
-        #print(self._blob._cases)
+            if not blob._sclerote and not blob._dead:
+                blob._etatNutritif -= 1
+                blob.Feed()
+
+                try:
+                    blob.Kill()
+                except:
+                    print("a")
+
+
+                blob.Add()
+                blob.Add()
+
+            self.CheckBlobState(blob)
+
+
+    def CheckBlobState(self, blob):
+        if self._temperature < 5: # mort
+            blob.Die()
+            #self._blobs.remove(blob)
+        elif self._temperature > 40: # mort
+            blob.Die()
+            #self._blobs.remove(blob)
+        else:
+            if blob.GetMoistureState() == -1:
+                if blob.GetFoodStatus() == "faim":
+                    blob.Dessication()
+                elif blob.GetFoodStatus() == "split":
+                    pass # split
+                elif blob.GetFoodStatus() == "mort": # mort
+                    blob.Die()
+                    #self._blobs.remove(blob)
+                else:
+                    pass # vit
+            elif blob.GetMoistureState() == 1:
+                if blob.GetFoodStatus() == "faim":
+                    blob.Sporulation()
+                    self._blobs.remove(blob)
+                elif blob.GetFoodStatus() == "split":
+                    pass  # split
+                elif blob.GetFoodStatus() == "mort":
+                    blob.Die()
+                    #self._blobs.remove(blob)
+                else:
+                    blob.Rehydrate()
+            else:
+                if blob.GetFoodStatus() == "faim":
+                    blob.Die()
+                elif blob.GetFoodStatus() == "split":
+                    pass  # split
+                elif blob.GetFoodStatus() == "mort":
+
+                    blob.Die()
+                    #self._blobs.remove(blob)
+                else:
+                    blob.Rehydrate()
+
 
     def ComputeField(self):
         """

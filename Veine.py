@@ -5,6 +5,8 @@ class Veine:
         self._max = 10
         self._size = size
         self._growingRate = 1
+        self._dessication = False
+        self._dead = False
 
         if self.Parent is not None:
             self.Parent.Children.append(self)

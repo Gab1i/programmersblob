@@ -1,6 +1,7 @@
 from Emetteur import Emetteur
 from Food import Food
 from Node import Node
+from Spore import Spore
 from Veine import Veine
 from random import choice, random, randint
 
@@ -8,6 +9,7 @@ from random import choice, random, randint
 class Blob:
     def __init__(self, world, pos):
         self.world = world
+        self.Sexe = randint(0, 720)
 
         self._max = 5
         self._veines = []
@@ -17,8 +19,14 @@ class Blob:
         # self._proteines = 0
         # self._glucides = 0
 
+        self._moisture = 0.6
+
         self._nbVeines = 5 # glucide
         self._masse = 5 # proteines
+        self._etatNutritif = 5
+
+        self._sclerote = False
+        self._dead = False
 
         # nbVeine -- + masse -- => sclerote ou sporulation (question : la difference sur l'environnement)
         # mode exploration : (moins de nutriment=proteines+glucides) ca s'étend, plus de veines
@@ -41,13 +49,61 @@ class Blob:
 
         self._behavior = 'Exploration'
 
+
+    def Dessication(self):
+        self._etatNutritif = 10
+        self._sclerote = True
+        for v in self._veines:
+            v._dessication = True
+
+
+    def Sporulation(self):
+        for c in self._cases:
+            c.Veine = None
+            c.Spores.append(Spore(self.Sexe))
+
+        self._veines = []
+        self._cases = []
+        self._dead = True
+
+
+    def Rehydrate(self):
+        self._sclerote = False
+        for v in self._veines:
+            v._dessication = False
+
+
+    def GetFoodStatus(self):
+        if self._etatNutritif <= 0:
+            return "faim"
+        elif self._splitRatio() > 7:
+            return "split"
+        elif self._deathRatio() > 7:
+            return "mort"
+        else: return "vit"
+
+
     def _deathRatio(self):
         # ratio de mort > XX tu meurs
         return self._nbVeines / self._masse
 
+
     def _splitRatio(self):
         # ratio de split > XX # tu split
         return self._masse / self._nbVeines
+
+
+    def Moisturize(self, world_moisture):
+        factor = 0.1
+        self._moisture = min(max(0, self._moisture + (world_moisture * factor)), 1)
+
+
+    def GetMoistureState(self):
+        if self._moisture < 0.5:
+            return -1
+        if 0.5 <= self._moisture <= 0.8:
+            return 0
+        else: return 1
 
     def _createVeine(self, veineParent, case):
         v = Veine(veineParent)
@@ -108,6 +164,7 @@ class Blob:
         for v in self._veines:
             v.Grow()
 
+
     def _findBest(self):
         # Code qui marche
         best = []
@@ -128,13 +185,13 @@ class Blob:
         return theChoice[0], theChoice[1]
 
 
-
     def _availableWithMucus(self, case):
         neighbors = self.world.Neighborhood(case)
         for c in neighbors:
             if c.Veine is None: return True
 
         return False
+
 
     def _findTheBestLiving(self):
         # Cherche le meilleur en fonction de la distance au mangeage
@@ -171,12 +228,14 @@ class Blob:
 
         return choice(best)
 
+
     def _hasAvailableNeighbors(self, case):
         neighbors = self.world.Neighborhood(case)
         for c in neighbors:
             if c.Veine is None and not c.mucus: return True
 
         return False
+
 
     def _letsMakeLive(self, case):
         neighbors = self.world.Neighborhood(case)
@@ -260,5 +319,15 @@ class Blob:
                 self._nbVeines += qte['glucide']
 
                 self._max = int(self._nbVeines)
+                self._etatNutritif += 5
 
                 if not food.status: self.world.DeleteAgent(food, c.position)
+
+    def Die(self):
+        #self._veines = []
+        #self._cases = []
+        #self._neighborhood = []
+        self._dead = True
+
+        for v in self._veines:
+            v._dead = True

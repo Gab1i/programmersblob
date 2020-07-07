@@ -13,19 +13,28 @@ class Window:
 
         self.root = tk.Tk()
         self.root.title("The Blob")
-        self.root.geometry("{0}x{1}".format(width, height))
+        self.root.geometry("{0}x{1}".format(width+300, height))
 
         self.root.bind('<Return>', self._onEnter)
         self.root.bind('<n>', self._toggleNeighborhood)
+        self.root.bind('<Right>', self._upTemp)
+        self.root.bind('<Left>', self._downTemp)
+        self.root.bind('<Up>', self._upMoisture)
+        self.root.bind('<Down>', self._downMoisture)
 
         self.canvas = tk.Canvas(width=self.width, height=self.height, bd=0, highlightthickness=0)
         self.canvas.pack(side=tk.LEFT)
 
-        self.menu = tk.Frame(width=300, height=self.height)
-        #self.menu.pack()
+        self.menu = tk.Canvas(width=300, height=self.height)
+        self.menu.pack()
 
-        self.nbTickText = tk.Text(self.menu)
-        self.nbTickText.pack()
+        #self.nbTickText = tk.Text(self.menu)
+        #self.nbTickText.pack()
+
+        self._moisture_world_txt = self.menu.create_text(40, 10, text='Moisture monde', font=('Purisa', 20))
+        self._temperature_world_txt = self.menu.create_text(40, 40, text='Temp. monde', font=('Purisa', 20))
+        self._moisture_txt = self.menu.create_text(40, 90, text='moisture', font=('Purisa', 20))
+        self._food_txt = self.menu.create_text(40, 120, text='Pas faim', font=('Purisa', 20))
 
         font = tkFont.Font(family="Helvetica", size=36, weight="bold")
 
@@ -37,23 +46,44 @@ class Window:
         # Initialisation du monde
         self._grid = []
         self.text = []
-        self._createWorld(30, 30, 134)
+        self._createWorld(10, 10, 7)
 
         self.root.mainloop()
 
+    def _upTemp(self, evt):
+        self.world._temperature += 1
+
+    def _downTemp(self, evt):
+        self.world._temperature -= 1
+
+    def _upMoisture(self, evt):
+        self.world._moisture = min(1, self.world._moisture+1)
+
+    def _downMoisture(self, evt):
+        self.world._moisture = max(-1, self.world._moisture-1)
+
     def _onEnter(self, evt):
-        #self.world.Tick()
-        #self._drawWorld()
-        self.round()
+        self.world.Tick()
+        self._drawWorld()
+        if self.world._blobs[0]._dead:
+            self.menu.itemconfig(self._moisture_txt, text="CACA DEAD")
+        else:
+            self.menu.itemconfig(self._moisture_world_txt, text=self.world._moisture)
+            self.menu.itemconfig(self._moisture_txt, text=self.world._blobs[0]._moisture)
+
+            self.menu.itemconfig(self._temperature_world_txt, text=self.world._temperature)
+            self.menu.itemconfig(self._food_txt, text=self.world._blobs[0].GetFoodStatus())
+        #self.round()
 
     def round(self):
         self.world.Tick()
+
         self._drawWorld()
         self.canvas.after(1, self.round)
 
     def _onLeftClick(self, evt):
         pos = self._evtToPos(evt)
-        self.world.AddEmitter(Food('Flamby', pos, -10, 10, 0.8, 1/8), pos)
+        self.world.AddEmitter(Food('Flamby', pos, -10, 10, 0.8, 1/5), pos)
         self._drawWorld()
 
     def _onRightClick(self, evt):
@@ -91,17 +121,29 @@ class Window:
 
         for c in self.world.grid:
             if c.mucus: color = '#edddd4'
-            else: color = '#fefae0'
+            else: color = '#8cb7b8'
 
             if self.drawNeighbors and c in self.world._blob._neighborhood:
                 color = '#626b3e'
 
             for a in c.agents:
-                if type(a) == Food: color = '#b64e3d'
+                if type(a) == Food:
+                    if a.name == "Flanbeurk":
+                        color = '#698262'
+                    else:
+                        color = '#b64e3d'
                 elif type(a) == Emetteur:
                     if a.name == 'Petite Lampe de Bureau qui Perce à travers les feuilles d\'arbre c\'est un peu artistique': color = '#367077'
 
-            if c.Veine is not None: color = '#bc6c25'
+            if c.Veine is not None:
+                if c.Veine._dessication:
+                    color = '#e79540'
+                elif c.Veine._dead:
+                    color = '#3d3d3d'
+                else: color = '#bc6c25'
+
+            if len(c.Spores) > 0:
+                color = '#68e3ba'
 
             self._updateCase(c, color)
 

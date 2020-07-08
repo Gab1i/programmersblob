@@ -16,6 +16,7 @@ class Window:
         self.root.geometry("{0}x{1}".format(width+300, height))
 
         self.root.bind('<Return>', self._onEnter)
+        self.root.bind('<p>', self._rrrrr)
         self.root.bind('<n>', self._toggleNeighborhood)
         self.root.bind('<Right>', self._upTemp)
         self.root.bind('<Left>', self._downTemp)
@@ -36,6 +37,8 @@ class Window:
         self._moisture_txt = self.menu.create_text(40, 90, text='moisture', font=('Purisa', 20))
         self._food_txt = self.menu.create_text(40, 120, text='Pas faim', font=('Purisa', 20))
 
+        self.age_txt = self.menu.create_text(40, 180, text='Age', font=('Purisa', 20))
+
         font = tkFont.Font(family="Helvetica", size=36, weight="bold")
 
         self.canvas.bind('<Button-1>', self._onLeftClick)
@@ -46,7 +49,7 @@ class Window:
         # Initialisation du monde
         self._grid = []
         self.text = []
-        self._createWorld(10, 10, 7)
+        self._createWorld(10, 10, 5)
 
         self.root.mainloop()
 
@@ -70,10 +73,14 @@ class Window:
         else:
             self.menu.itemconfig(self._moisture_world_txt, text=self.world._moisture)
             self.menu.itemconfig(self._moisture_txt, text=self.world._blobs[0]._moisture)
+            self.menu.itemconfig(self.age_txt, text=self.world._blobs[0]._age)
 
             self.menu.itemconfig(self._temperature_world_txt, text=self.world._temperature)
             self.menu.itemconfig(self._food_txt, text=self.world._blobs[0].GetFoodStatus())
         #self.round()
+
+    def _rrrrr(self, evt):
+        self.round()
 
     def round(self):
         self.world.Tick()
@@ -141,6 +148,9 @@ class Window:
                 elif c.Veine._dead:
                     color = '#3d3d3d'
                 else: color = '#bc6c25'
+
+                if c.Veine.isExtremity: color = "#6C0277"
+
 
             if len(c.Spores) > 0:
                 color = '#68e3ba'

@@ -15,6 +15,7 @@ class Blob:
         self._veines = []
         self._cases = []
         self._neighborhood = []
+        self._age = 1
 
         # self._proteines = 0
         # self._glucides = 0
@@ -23,7 +24,7 @@ class Blob:
 
         self._nbVeines = 5 # glucide
         self._masse = 5 # proteines
-        self._etatNutritif = 5
+        self._etatNutritif = 200
 
         self._sclerote = False
         self._dead = False
@@ -48,6 +49,12 @@ class Blob:
         # Champ d'agitation - Tester
 
         self._behavior = 'Exploration'
+
+
+    def ToutDansLeMucus(self):
+        for c in self._cases:
+            if c.mucus: return False
+        return True
 
 
     def Dessication(self):
@@ -117,7 +124,6 @@ class Blob:
         # self._getNeighborhood()
 
     def _destroyVeine(self, case):
-
         v = case.Veine
 
         """if case.parent is not None:
@@ -262,9 +268,19 @@ class Blob:
 
         return max(abs(xA - xB), abs(yA - yB))
 
+
     def _findWorst(self):
         worst = []
         for c in self._cases:
+            neighbors = self.world.Neighborhood(c, self.world._timeInTheMucus)
+            v = 0
+
+            for pos in neighbors:
+                case = pos
+                if not case.mucus: v += 1
+
+            c._value += v
+
             if c.Veine.isExtremity and not c.isIn([Food]):
                 if len(worst) == 0:
                     worst.append(c)
@@ -272,9 +288,11 @@ class Blob:
                     worst = [c]
                 elif c.getField() == worst[0].getField():
                     worst.append(c)
+
         if len(worst) == 0: return None
         w = choice(worst)
         return w
+
 
     def Kill(self):
         """if self._behavior == 'Target':

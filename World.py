@@ -1,3 +1,5 @@
+from random import random
+
 from Blob import Blob
 from Case import *
 
@@ -18,6 +20,8 @@ class World:
         self._moisture = 1
 
         self._temperature = 27
+
+        self._timeInTheMucus = 1
 
         #self.AddAgent(self._blob, pos)
 
@@ -83,18 +87,26 @@ class World:
 
     def Tick(self):
         self.ComputeField()
+        age_factor = 30
 
         for blob in self._blobs:
-            blob.Moisturize(self._moisture)
+            if blob.ToutDansLeMucus(): self._timeInTheMucus += 1
+            else: self._timeInTheMucus = 1
 
-            if not blob._sclerote and not blob._dead:
+            blob.Moisturize(self._moisture)
+            t = random()
+            print("{0} < {1} = {2}".format(t, age_factor/blob._age, t < age_factor/blob._age))
+
+            if not blob._sclerote and not blob._dead and t < age_factor/blob._age:
                 blob._etatNutritif -= 1
                 blob.Feed()
 
-                try:
+                blob._age += 1
+                blob.Kill()
+                """try:
                     blob.Kill()
                 except:
-                    print("a")
+                    print("a")"""
 
 
                 blob.Add()

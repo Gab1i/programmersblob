@@ -4,7 +4,7 @@ from Window import Window
 
 
 if __name__ == "__main__":
-    win = Window(900, 600)
+    win = Window(800, 800)
     #menu = Menu()
     #menu.mainloop()
 

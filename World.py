@@ -119,7 +119,7 @@ class World:
         if self._temperature < 5: # mort
             blob.Die()
             #self._blobs.remove(blob)
-        elif self._temperature > 40: # mort
+        elif self._temperature >= 40: # mort
             blob.Die()
             #self._blobs.remove(blob)
         else:

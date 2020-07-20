@@ -7,8 +7,8 @@ class Food(Emetteur):
     concentration = <= 1
     """
     def __init__(self, name, pos, decay, qte, concentration, ratio):
-        diff = abs(2 - ratio)
-        if diff == 0: res = 9999999 * concentration
+        diff = abs(1 - ratio)
+        if diff == 0: res = 0.00001 * concentration
         else: res = (1 / diff) * (concentration)
 
         super().__init__(name, pos, res, decay)

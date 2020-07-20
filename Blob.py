@@ -7,15 +7,22 @@ from random import choice, random, randint
 
 
 class Blob:
-    def __init__(self, world, pos):
+    def __init__(self, world, pos, sexe=None):
         self.world = world
-        self.Sexe = randint(0, 720)
+        self.MMM = None
+        if sexe is None:
+            self.Sexe = randint(0, 720)
+        else:
+            self.Sexe = sexe
 
         self._max = 5
         self._veines = []
         self._cases = []
         self._neighborhood = []
         self._age = 1
+
+
+        self._jaifaim = False
 
         # self._proteines = 0
         # self._glucides = 0
@@ -24,7 +31,7 @@ class Blob:
 
         self._nbVeines = 5 # glucide
         self._masse = 5 # proteines
-        self._etatNutritif = 200
+        self._etatNutritif = 40
 
         self._sclerote = False
         self._dead = False
@@ -50,37 +57,56 @@ class Blob:
 
         self._behavior = 'Exploration'
 
-
     def ToutDansLeMucus(self):
         for c in self._cases:
-            if c.mucus: return False
+            #if c.mucus: return False
+            neighbors = self.world.Neighborhood(c)
+            for n in neighbors:
+                if n not in self._cases:
+                    if not n.mucus: return False
+
         return True
 
-
     def Dessication(self):
+        """
+        CA MARCHE (ON EST QUASI SUR)
+        """
         self._etatNutritif = 10
         self._sclerote = True
         for v in self._veines:
             v._dessication = True
 
-
     def Sporulation(self):
+        """
+        CA MARCHE (ON EST QUASI SUR)
+        """
+        list = []
         for c in self._cases:
             c.Veine = None
-            c.Spores.append(Spore(self.Sexe))
+            s = Spore(self.Sexe, c)
+            c.AddSpore(s)
+            list.append(s)
 
         self._veines = []
         self._cases = []
         self._dead = True
 
+        return list
+
 
     def Rehydrate(self):
+        """
+        CA MARCHE (ON EST QUASI SUR MAIS UN PEU MOINS)
+        """
         self._sclerote = False
         for v in self._veines:
             v._dessication = False
 
 
     def GetFoodStatus(self):
+        """
+        CA MARCHE (ON EST QUASI SUR)
+        """
         if self._etatNutritif <= 0:
             return "faim"
         elif self._splitRatio() > 7:
@@ -91,21 +117,33 @@ class Blob:
 
 
     def _deathRatio(self):
+        """
+            CA MARCHE (ON EST QUASI SUR)
+        """
         # ratio de mort > XX tu meurs
         return self._nbVeines / self._masse
 
 
     def _splitRatio(self):
+        """
+                    CA MARCHE (ON EST QUASI SUR)
+                """
         # ratio de split > XX # tu split
         return self._masse / self._nbVeines
 
 
     def Moisturize(self, world_moisture):
+        """
+                    CA MARCHE (ON EST QUASI SUR)
+                """
         factor = 0.1
         self._moisture = min(max(0, self._moisture + (world_moisture * factor)), 1)
 
 
     def GetMoistureState(self):
+        """
+                    CA MARCHE (ON EST QUASI SUR)
+                """
         if self._moisture < 0.5:
             return -1
         if 0.5 <= self._moisture <= 0.8:
@@ -113,12 +151,18 @@ class Blob:
         else: return 1
 
     def _createVeine(self, veineParent, case):
-        v = Veine(veineParent)
+        if case.Veine is not None and case.Veine._blob != self:
+            case.Veine.Parent = veineParent
+            veineParent.Children.append(self)
+            self.MMM = case
+            self.Merge(case.Veine._blob)
+        else:
+            v = Veine(self, veineParent, self.Sexe)
         # ("je suis {0}, engendré par {1}".format(case[1], case[0]))
 
-        self._veines.append(v)
-        self._cases.append(case)
-        case.Veine = v
+            self._veines.append(v)
+            self._cases.append(case)
+            case.Veine = v
 
         self._getMixedNeighborhood()
         # self._getNeighborhood()
@@ -216,8 +260,8 @@ class Blob:
                     distance = self._tchebychevDistance(c.position, e.pos)
                     if distance <= e.distance:
                         #powerDetected = e.power + (e.decay * distance) + c._value
-                        #powerDetected = e.power + (e.decay * distance)
-                        powerDetected = c._value
+                        powerDetected = e.power + (e.decay * distance)
+                        # powerDetected = c._value
                         if powerDetected > maxDetected:
                             maxDetected = powerDetected
                             best = [c]
@@ -231,7 +275,8 @@ class Blob:
                 return choice(availables)
         if len(best) == 1:
             return best[0]
-
+        if len(best) == len(self._veines):
+            return best[-1]
         return choice(best)
 
 
@@ -248,16 +293,16 @@ class Blob:
         available = []
         withMucus = []
         for c in neighbors:
-            if c.Veine is None and not c.mucus: available.append(c)
-            if c.Veine is None: withMucus.append(c)
+            if (c.Veine is None or c.Veine._blob != self) and not c.mucus: available.append(c)
+            if (c.Veine is None or c.Veine._blob != self): withMucus.append(c)
 
         if len(available) == 0:
             nb = randint(0, len(withMucus))
             self._createVeine(case.Veine, choice(withMucus))
-
         else:
             nb = randint(0, len(available))
             self._createVeine(case.Veine, choice(available))
+
 
         #for i in range(nb):
         #   self._createVeine(case.Veine, available.pop())
@@ -311,13 +356,14 @@ class Blob:
             # self._destroyVeine(w)
 
             w.mucus = True
-            self.world.AddEmitter(Emetteur('Le Mucus', w.position, -3, 1), w.position)
+            self.world.AddEmitter(Emetteur('Le Mucus', w.position, -2, 1), w.position)
+            if self.MMM is not None and w == self.MMM.Veine:
+                print("aa")
             self._destroyVeine(w)
 
     def Add(self):
         # if len(self._veines) < self._max:
         #   self._createVeine(*self._findBest())
-
 
         if len(self._veines) < self._max:
             case = self._findTheBestLiving()
@@ -327,19 +373,20 @@ class Blob:
         veine = None
         food = None
 
-        for c in self._cases:
-            if c.isIn([Food]) and c.Veine is not None:
-                for a in c.agents:
-                    if type(a) == Food: food = a
+        if self._jaifaim <= 40:
+            for c in self._cases:
+                if c.isIn([Food]) and c.Veine is not None:
+                    for a in c.agents:
+                        if type(a) == Food: food = a
 
-                qte = food.Eat()
-                self._masse += qte['proteine']
-                self._nbVeines += qte['glucide']
+                    qte = food.Eat()
+                    self._masse += qte['proteine']
+                    self._nbVeines += qte['glucide']
 
-                self._max = int(self._nbVeines)
-                self._etatNutritif += 5
+                    self._max = int(self._nbVeines)
+                    self._etatNutritif += 10
 
-                if not food.status: self.world.DeleteAgent(food, c.position)
+                    if not food.status: self.world.DeleteAgent(food, c.position)
 
     def Die(self):
         #self._veines = []
@@ -349,3 +396,13 @@ class Blob:
 
         for v in self._veines:
             v._dead = True
+
+    def Merge(self, blob):
+        self.world.RemoveBlob(self)
+
+        for v in self._veines:
+            v._blob = blob
+            blob._veines.append(v)
+
+        for c in self._cases:
+            blob._cases.append(c)

@@ -7,10 +7,13 @@ class World:
     def __init__(self, line, col, pos):
         self.line = line
         self.col = col
-        self.grid = [ Case(i, (line, col)) for i in range(line * col) ]
+        self.grid = [Case(i, (line, col)) for i in range(line * col)]
 
         self._blobs = [Blob(self, pos)]
+        self._blobs.append(Blob(self, 24))
         self._emitters = []
+
+        self._spores = []
 
         self._light = 1
 
@@ -23,7 +26,9 @@ class World:
 
         self._timeInTheMucus = 1
 
-        #self.AddAgent(self._blob, pos)
+        self.nombreHeureParTick = 1
+        self.tailleTotale = 10
+
 
     def Neighborhood(self, case, n=1):
         """
@@ -86,34 +91,46 @@ class World:
         self.grid[p].agents.remove(agent)
 
     def Tick(self):
-        self.ComputeField()
-        age_factor = 30
+        age_factor = 720
 
-        for blob in self._blobs:
-            if blob.ToutDansLeMucus(): self._timeInTheMucus += 1
-            else: self._timeInTheMucus = 1
+        nbTick = round((self.line * self.nombreHeureParTick) / self.tailleTotale)
+        s = 0
+        for _ in range(nbTick):
+            self.ComputeField()
+            for blob in self._blobs:
+                if blob.ToutDansLeMucus(): self._timeInTheMucus += 1
+                else: self._timeInTheMucus = 1
 
-            blob.Moisturize(self._moisture)
-            t = random()
-            print("{0} < {1} = {2}".format(t, age_factor/blob._age, t < age_factor/blob._age))
-
-            if not blob._sclerote and not blob._dead and t < age_factor/blob._age:
-                blob._etatNutritif -= 1
-                blob.Feed()
-
+                blob.Moisturize(self._moisture)
+                t = random()
                 blob._age += 1
-                blob.Kill()
-                """try:
+
+                if not blob._sclerote and not blob._dead and t < age_factor/blob._age:
+                    blob._etatNutritif -= 1
+                    blob.Feed()
+
                     blob.Kill()
-                except:
-                    print("a")"""
+
+                    blob.Add()
+                    blob.Add()
+
+                self.CheckBlobState(blob)
+
+            for spore in self._spores:
+                if spore.Move(self.Neighborhood(spore._case, 1)):
+                    self._spores.remove(spore)
+                    self._spores.remove()
+                    self.newBlob(spore._case.position, spore._sexe)
 
 
-                blob.Add()
-                blob.Add()
+    def RemoveBlob(self, blob):
+        self._blobs.remove(blob)
+        print("J'ai fussssssssionné")
 
-            self.CheckBlobState(blob)
 
+    def newBlob(self, pos, sexe):
+        print("Un nouveau blob")
+        self._blobs.append(Blob(self, pos, sexe))
 
     def CheckBlobState(self, blob):
         if self._temperature < 5: # mort
@@ -135,7 +152,7 @@ class World:
                     pass # vit
             elif blob.GetMoistureState() == 1:
                 if blob.GetFoodStatus() == "faim":
-                    blob.Sporulation()
+                    self._spores.extend(blob.Sporulation())
                     self._blobs.remove(blob)
                 elif blob.GetFoodStatus() == "split":
                     pass  # split

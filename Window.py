@@ -95,7 +95,7 @@ class Window:
         # Initialisation du monde
         self._grid = []
         self.text = []
-        self._createWorld(50, 50, 5)
+        self._createWorld(25,25, 5)
 
         self.root.mainloop()
 
@@ -142,16 +142,16 @@ class Window:
     def _onLeftClick(self, evt):
         pos = self._evtToPos(evt)
         self.world.AddEmitter(
-            Food('Flamby', pos, -10, int(self.foodText.get("1.0", tk.END)), self.foodConcentration.get(), self.foodRatio.get()),
+            Food('Flamby', pos, -100, int(self.foodText.get("1.0", tk.END)), self.foodConcentration.get(), self.foodRatio.get()),
             pos)
-        print(self.foodText.get("1.0", tk.END))
         self._drawWorld()
 
     def _onRightClick(self, evt):
         pos = self._evtToPos(evt)
         # self.world.AddEmitter(Emetteur('Petite Lampe de Bureau qui Perce à travers les feuilles d\'arbre c\'est un peu artistique'
         #                              , pos, -5, 1), pos)
-        self.world.AddEmitter(Food('Flanbeurk', pos, -10, 10, 0.5, 1 / 8), pos)
+        self.world.AddEmitter(Emetteur('Le Mucus', pos, -2, 1), pos)
+        self.world.grid[pos].mucus = True
         self._drawWorld()
 
     def _evtToPos(self, evt):
@@ -206,7 +206,8 @@ class Window:
                 if c.Veine.isExtremity: color = '#6C0277'
 
             if len(c.Spores) > 0:
-                color = '#68e3ba'
+                color = self.getColorSexe(c.Spores[0]._sexe)
+                #color = '#68e3ba'
 
             self._updateCase(c, color)
 
@@ -214,14 +215,14 @@ class Window:
         self.canvas.itemconfig(self._grid[case.position], fill=color)
 
         # show children number of each veine portion
-        if case.Veine is not None:
-            t = ''  # round(case.Veine._size,2)
-        else:
-            t = ''
-        self.canvas.itemconfig(self.text[case.position], text=t)
+        #if case.Veine is not None:
+        #    t = ''  # round(case.Veine._size,2)
+        #else:
+        #    t = ''
+        #self.canvas.itemconfig(self.text[case.position], text=t)
 
         # show position of each case
-        self.canvas.itemconfig(self.text[case.position], text=round(case._value, 2))
+        #self.canvas.itemconfig(self.text[case.position], text=round(case._value, 2))
 
     def _drawCase(self, case, caseWidth, caseHeight, color):
         (yStart, xStart) = case.Coord
@@ -238,11 +239,15 @@ class Window:
 
         return rect
 
+    def getColorSexe(self, a):
+        c = int(a / 720 * 255)
+        return '#%02x%02x%02x' % (c, 229, 52)
+
     def getColor(self, a):
         hue = a.ratio * 100
         saturation = a.concentration
         brightness = 1
-        print((hue, saturation, brightness))
+
         return '#%02x%02x%02x' % self.hsv2rgb(round(hue), saturation, brightness)
 
     def hsv2rgb(self, h, s, v):
@@ -275,5 +280,4 @@ class Window:
             r2 = C
             g2 = 0
             b2 = X
-        print(round((r2 + m) * 255), round((g2 + m) * 255), round((b2 + m) * 255))
         return (round((r2 + m) * 255), round((g2 + m) * 255), round((b2 + m) * 255))

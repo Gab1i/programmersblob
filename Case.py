@@ -50,3 +50,21 @@ class Case:
             if not unType: return False
 
         return True
+
+    def TimeToKen(self):
+        spores = []
+        if len(self.Spores) > 1:
+            sexe = self.Spores[0]._sexe
+            spores.append(self.Spores[0])
+            for i in range(1, len(self.Spores)):
+                if sexe != self.Spores[i]._sexe:
+                    spores.append(self.Spores[i])
+                    return spores
+
+        return []
+
+    def AddSpore(self, spore):
+        self.Spores.append(spore)
+
+    def RemoveSpore(self, spore):
+        self.Spores.remove(spore)

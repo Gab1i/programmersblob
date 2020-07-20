@@ -33,11 +33,10 @@ class Menu(Tk):
         self.bind('<Motion>', self._onMotion)
 
     def closeApp(self):
-        print('CLOSE')
         self.quit()
 
     def startSimulation(self):
-        print("START")
+        pass
 
     def _onMotion(self, evt):
         """self.positionX = , self.positionY

@@ -8,6 +8,7 @@ from random import choice, random, randint
 
 class Blob:
     def __init__(self, world, pos, sexe=None):
+        self.apprentissage = 1
         self.world = world
         self.MMM = None
         if sexe is None:
@@ -31,7 +32,7 @@ class Blob:
 
         self._nbVeines = 5 # glucide
         self._masse = 5 # proteines
-        self._etatNutritif = 40
+        self._etatNutritif = 3000
 
         self._sclerote = False
         self._dead = False
@@ -164,6 +165,7 @@ class Blob:
             self._cases.append(case)
             case.Veine = v
 
+
         self._getMixedNeighborhood()
         # self._getNeighborhood()
 
@@ -259,7 +261,7 @@ class Blob:
                 for e in self.world._emitters:
                     distance = self._tchebychevDistance(c.position, e.pos)
                     if distance <= e.distance:
-                        #powerDetected = e.power + (e.decay * distance) + c._value
+                        # powerDetected = e.power + (e.decay * distance) + c._value
                         powerDetected = e.power + (e.decay * distance)
                         # powerDetected = c._value
                         if powerDetected > maxDetected:
@@ -344,7 +346,20 @@ class Blob:
             prob = 0.9
         elif self._behavior == 'Exploration':
             prob = 0.1"""
-        prob = 1
+
+        bestCase = self._findTheBestLiving()
+        neighbors = self.world.Neighborhood(bestCase, 1)
+        nbSel = 1
+        for n in neighbors:
+            if n.Sel: nbSel += 56
+
+        prob = self.apprentissage / nbSel
+
+        #best = self._findBest()
+
+
+
+        #prob = 1
 
         if random() <= prob:
             w = self._findWorst()
@@ -368,6 +383,11 @@ class Blob:
         if len(self._veines) < self._max:
             case = self._findTheBestLiving()
             self._letsMakeLive(case)
+
+    def Learn(self):
+        for c in self._cases:
+            if c.Sel:
+                self.apprentissage += 0.2
 
     def Feed(self):
         veine = None
@@ -399,6 +419,8 @@ class Blob:
 
     def Merge(self, blob):
         self.world.RemoveBlob(self)
+
+        blob._max += self._max
 
         for v in self._veines:
             v._blob = blob

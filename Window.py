@@ -1,9 +1,11 @@
 import tkinter as tk
 import tkinter.font as tkFont
+from tkinter import messagebox
 
 from Emetteur import Emetteur
 from World import *
 from Blob import *
+from tkinter.filedialog import *
 
 
 class Window:
@@ -44,37 +46,42 @@ class Window:
         self._slider_humidite.set(60)
         self._slider_humidite.pack()
 
-        self._frame1 = tk.Frame(self.menu, background='red')
+        self._frame1 = tk.Frame(self.menu)
 
-        tk.Label(self._frame1, text='h/tick: ', anchor=tk.W).grid(column=1, row=1)
-        self._hour_tick_txt = tk.Label(self._frame1, text='13').grid(column=2, row=1)
+        tk.Label(self._frame1, text='h/tick: ', anchor=tk.W, justify=tk.LEFT).grid(column=1, row=1)
+        self._hour_tick_txt = tk.Label(self._frame1, text='')
+        self._hour_tick_txt.grid(column=2, row=1)
 
-        tk.Label(self._frame1, text='Time: ', anchor=tk.W).grid(column=1, row=2)
-        self._hour_tick_txt = tk.Label(self._frame1, text='13').grid(column=2, row=2)
-
-        tk.Label(self._frame1, text='Age du blob: ', anchor=tk.W).grid(column=1, row=3)
-        self._age_txt = tk.Label(self._frame1, text=4).grid(column=2, row=3)
-
-        tk.Label(self._frame1, text='Etat du blob: ', anchor=tk.W).grid(column=1, row=4)
-        self._state_txt = tk.Label(self._frame1, text='Mort').grid(column=2, row=4)
+        tk.Label(self._frame1, text='Ellapsed time: ', anchor=tk.W, justify=tk.LEFT).grid(column=1, row=2)
+        self._time_txt = tk.Label(self._frame1, text='')
+        self._time_txt.grid(column=2, row=2)
 
         var1 = tk.IntVar()
         self._boxChamp = tk.Checkbutton(self._frame1, variable=var1).grid(column=2, row=5)
-        tk.Label(self._frame1, text='Afficher champ: ', anchor=tk.W).grid(column=1, row=5)
+        tk.Label(self._frame1, text='Afficher champ: ', anchor=tk.W, justify=tk.LEFT).grid(column=1, row=5)
 
-        tk.Label(self._frame1, text='Nourriture: ').grid(column=1, row=6)
+
+        tk.Label(self._frame1, text='Nourriture: ', justify=tk.LEFT).grid(column=1, row=6)
+
         self._slider_bouffe = tk.Scale(self._frame1, orient='horizontal', from_=0, to=1, resolution=0.1,
-                                       tickinterval=1,
-                                       length=100, variable=self.foodRatio).grid(column=2, row=6)
+                                       tickinterval=1, label='Ratio',
+                                       length=240, variable=self.foodRatio).grid(column=1, row=8, columnspan=2)
 
         self._slider_bouffe2 = tk.Scale(self._frame1, orient='horizontal', from_=0, to=1, resolution=0.1,
-                                        tickinterval=1,
-                                        length=100, variable=self.foodConcentration).grid(column=2, row=7)
+                                        tickinterval=1, label='Concentration',
+                                        length=240, variable=self.foodConcentration).grid(column=1, row=10, columnspan=2)
 
-        self.foodText = tk.Text(self._frame1, height=2, width=30)
-        # foodText.bind('<Return>', self.setFoodQte)
-        self.foodText.grid(column=1, row=8)
-        self.foodText.insert(tk.END, "1")
+        self.foodValue = tk.StringVar()
+        self.foodValue.set("1")
+        self.foodText = tk.Entry(self._frame1, state="readonly", textvariable=self.foodValue)
+
+        self.original = self.foodText.cget("highlightbackground")
+
+        tk.Label(self._frame1, text='Quantité: ', justify=tk.LEFT).grid(column=1, row=11)
+        self.foodText.grid(column=2, row=11)
+        #self.foodText.setT
+
+        #self.foodValue = "1"
 
         self._frame1.pack(anchor=tk.W)
 
@@ -90,14 +97,36 @@ class Window:
         self.canvas.bind('<Button-1>', self._onLeftClick)
         self.canvas.bind('<Button-2>', self._onRightClick)
 
+        self.foodText.bind('<Key>', self._inputText)
+
         self.drawNeighbors = False
 
         # Initialisation du monde
         self._grid = []
         self.text = []
-        self._createWorld(25,25, 5)
+        self._createWorld(25, 25, 5)
 
         self.root.mainloop()
+
+    def _inputText(self, evt):
+        if evt.keysym == "BackSpace":
+            self.foodValue.set(self.foodValue.get()[0:-1])
+        if evt.char.isdigit():
+            self.foodValue.set(self.foodValue.get() + evt.char)
+
+        if self.foodValue.get() == "":
+            self.foodText["highlightbackground"] = "#ff0000"
+        else:
+            self.foodText["highlightbackground"] = self.original
+
+
+    def formatTime(self, hours):
+        nbJours = hours // 24
+
+        if nbJours == 0:
+            return "{0}h".format(hours)
+
+        return "{0}d {1}h".format(nbJours, hours%24)
 
     def setTemp(self, temp):
         temp = int(temp)
@@ -126,6 +155,9 @@ class Window:
 
     def _onEnter(self, evt):
         self.world.Tick()
+
+        self._hour_tick_txt['text'] = self.world.nombreHeureParTick
+        self._time_txt['text'] = self.formatTime(self.world.ellapsedTime)
         self._drawWorld()
 
         # self.round()
@@ -141,17 +173,23 @@ class Window:
 
     def _onLeftClick(self, evt):
         pos = self._evtToPos(evt)
-        self.world.AddEmitter(
-            Food('Flamby', pos, -100, int(self.foodText.get("1.0", tk.END)), self.foodConcentration.get(), self.foodRatio.get()),
-            pos)
-        self._drawWorld()
+        self.foodText["highlightbackground"] = self.original
+
+        if self.foodValue.get() == "":
+            self.foodText.bell()
+            messagebox.showerror("Quantité de nourriture", "Veuillez entrer une quantité de nourriture valide s'il-vous-plait !")
+            self.foodText["highlightbackground"] = "#ff0000"
+
+        else:
+            self.world.AddEmitter(
+                Food('Flamby', pos, -100, int(self.foodValue.get()), self.foodConcentration.get(), self.foodRatio.get()),
+                pos)
+            self._drawWorld()
 
     def _onRightClick(self, evt):
         pos = self._evtToPos(evt)
-        # self.world.AddEmitter(Emetteur('Petite Lampe de Bureau qui Perce à travers les feuilles d\'arbre c\'est un peu artistique'
-        #                              , pos, -5, 1), pos)
-        self.world.AddEmitter(Emetteur('Le Mucus', pos, -2, 1), pos)
-        self.world.grid[pos].mucus = True
+
+        self.world.grid[pos].Sel = True
         self._drawWorld()
 
     def _evtToPos(self, evt):
@@ -185,6 +223,9 @@ class Window:
                 color = '#edddd4'
             else:
                 color = '#8cb7b8'
+
+            if c.Sel:
+                color = '#34ebb4'
 
             if self.drawNeighbors and c in self.world._blob._neighborhood:
                 color = '#626b3e'

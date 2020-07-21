@@ -9,6 +9,7 @@ class World:
         self.col = col
         self.grid = [Case(i, (line, col)) for i in range(line * col)]
 
+
         self._blobs = [Blob(self, pos)]
         self._blobs.append(Blob(self, 24))
         self._emitters = []
@@ -27,6 +28,7 @@ class World:
         self._timeInTheMucus = 1
 
         self.nombreHeureParTick = 1
+        self.ellapsedTime = 0
         self.tailleTotale = 10
 
 
@@ -92,10 +94,12 @@ class World:
 
     def Tick(self):
         age_factor = 720
-
         nbTick = round((self.line * self.nombreHeureParTick) / self.tailleTotale)
+        self.ellapsedTime += self.nombreHeureParTick
+
         s = 0
         for _ in range(nbTick):
+
             self.ComputeField()
             for blob in self._blobs:
                 if blob.ToutDansLeMucus(): self._timeInTheMucus += 1
@@ -107,7 +111,11 @@ class World:
 
                 if not blob._sclerote and not blob._dead and t < age_factor/blob._age:
                     blob._etatNutritif -= 1
+                    blob.apprentissage = max(1, blob.apprentissage - 0.1)
+
                     blob.Feed()
+
+                    blob.Learn()
 
                     blob.Kill()
 

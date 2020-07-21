@@ -16,6 +16,7 @@ class Case:
         self.children = []
         self.parent = None
         self.Spores = []
+        self.Sel = True
 
 
     def setParent(self, parent):
@@ -50,6 +51,8 @@ class Case:
             if not unType: return False
 
         return True
+
+
 
     def TimeToKen(self):
         spores = []

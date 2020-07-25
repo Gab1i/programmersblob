@@ -17,6 +17,9 @@ Lancez ensuite le fichier `main.py`
 ### MacOs
 
 Le dossier "dist" contient une version executable pour MacOs uniquement.
+Vous pouvez recréer un exécutable à l'aide de la commande
+
+`$ python setup_darwin.py py2app`
 
 ## Utilisation
 

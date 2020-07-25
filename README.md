@@ -28,9 +28,10 @@ Le dossier "dist" contient une version executable pour MacOs uniquement.
  - La taille en case
  - Le temps par tick
 
-<img src="menu.png"
-     alt="Menu"
-     style="width:70%" />
+<p align="center">
+  <img width="460" height="300" src="documentation/menu.png">
+</p>
+
 
 #### Taille réelle
 
@@ -49,9 +50,9 @@ La simulation utilise une grille pour représenter l'environnement. Cette grille
 
 La fenêtre principale se compose de deux parties. A gauche l'environnement simulé et à droite le panneau de contrôle divisé en cinq sections.
 
-<img src="documentation/main.png"
-     alt="Menu"
-     style="width:80%" />
+<p align="center">
+  <img width="80%" height="300" src="documentation/main.png">
+</p>
 
 #### Légende
 

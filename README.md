@@ -51,14 +51,14 @@ La simulation utilise une grille pour représenter l'environnement. Cette grille
 La fenêtre principale se compose de deux parties. A gauche l'environnement simulé et à droite le panneau de contrôle divisé en cinq sections.
 
 <p align="center">
-  <img width="80%" height="300" src="documentation/main.png">
+  <img width="80%" src="documentation/main.png">
 </p>
 
 #### Légende
 
-<img src="documentation/legende.png"
-     alt="Menu"
-     style="width:35%" />
+<p align="center">
+  <img width="35%" src="documentation/legende.png">
+</p>
 
 La légende indique les couleurs des différents éléments qu'il est possible de retrouver dans la simulation:
 
@@ -66,9 +66,9 @@ La légende indique les couleurs des différents éléments qu'il est possible d
 
  #### Paramètres de la nourriture
 
-<img src="documentation/nourriture.png"
-     alt="Menu"
-     style="width:35%" />
+<p align="center">
+  <img width="35%" src="documentation/nourriture.png">
+</p>
 
  La nourriture déposée dans la simulation est modélisée grâce à trois paramètres:
 
@@ -82,17 +82,17 @@ La légende indique les couleurs des différents éléments qu'il est possible d
 
  #### Paramètres d'environnement
 
-<img src="documentation/env.png"
-     alt="Menu"
-     style="width:35%" />
+<p align="center">
+  <img width="35%" src="documentation/env.png">
+</p>
 
  Grâce aux slider de cette section, vous pouvez faire varier la température et l'humidité du monde simulé.
 
  #### Boutons d'ajout et de contrôle
 
-<img src="documentation/controles.png"
-     alt="Menu"
-     style="width:35%" />
+<p align="center">
+  <img width="35%" src="documentation/controles.png">
+</p>
 
  Vous pouvez utiliser le clic gauche pour déposer des éléments dans la simulation. Les quatre boutons d'ajout vous permettent de selectionner ce que vous voulez ajouter:
 

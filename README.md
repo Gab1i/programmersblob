@@ -1,7 +1,8 @@
- # Rise of the Blob
+# Rise of the Blob
+
  [![forthebadge made-with-python](http://ForTheBadge.com/images/badges/made-with-python.svg)](https://www.python.org/)
  [![forthebadge](https://forthebadge.com/images/badges/gluten-free.svg)](https://forthebadge.com)
- 
+
 
 Bienvenue dans Rise of the Blob. Cette application vous permet de simuler différentes expériences impliquant physarum polycephalum.
 
@@ -20,9 +21,22 @@ Lancez ensuite le fichier `main.py`
 ### MacOs
 
 Le dossier "dist" contient une version executable pour MacOs uniquement.
-Vous pouvez recréer un exécutable à l'aide de la commande
+Vous pouvez recréer un exécutable à l'aide de la commande `$ python setup_darwin.py py2app`
 
-`$ python setup_darwin.py py2app`
+#### Sécurité
+
+<p align="center">
+  <img width="40%" src="documentation/impossible.png">
+</p>
+
+
+Le fichier exécutable n'a pas été signé, par défaut, MacOs refuse d'ouvrir les exécutables non signés. Pour l'ouvrir, rendez-vous dans les paramètres de `Confidentialité & sécurité` de votre mac, puis cliquez sur `Ouvrir quand même`.
+
+<p align="center">
+  <img width="60%" src="documentation/securite.png">
+</p>
+
+
 
 ## Utilisation
 
@@ -37,6 +51,7 @@ Vous pouvez recréer un exécutable à l'aide de la commande
 <p align="center">
   <img width="460" height="300" src="documentation/menu.png">
 </p>
+
 
 
 #### Taille réelle
@@ -60,11 +75,13 @@ La fenêtre principale se compose de deux parties. A gauche l'environnement simu
   <img width="80%" src="documentation/main.png">
 </p>
 
+
 #### Légende
 
 <p align="center">
   <img width="35%" src="documentation/legende.png">
 </p>
+
 
 La légende indique les couleurs des différents éléments qu'il est possible de retrouver dans la simulation:
 
@@ -75,6 +92,7 @@ La légende indique les couleurs des différents éléments qu'il est possible d
 <p align="center">
   <img width="35%" src="documentation/nourriture.png">
 </p>
+
 
  La nourriture déposée dans la simulation est modélisée grâce à trois paramètres:
 
@@ -92,6 +110,7 @@ La légende indique les couleurs des différents éléments qu'il est possible d
   <img width="35%" src="documentation/env.png">
 </p>
 
+
  Grâce aux slider de cette section, vous pouvez faire varier la température et l'humidité du monde simulé.
 
  #### Boutons d'ajout et de contrôle
@@ -100,6 +119,7 @@ La légende indique les couleurs des différents éléments qu'il est possible d
   <img width="35%" src="documentation/controles.png">
 </p>
 
+
  Vous pouvez utiliser le clic gauche pour déposer des éléments dans la simulation. Les quatre boutons d'ajout vous permettent de selectionner ce que vous voulez ajouter:
 
  - Un Blob
@@ -107,4 +127,4 @@ La légende indique les couleurs des différents éléments qu'il est possible d
  - Un point lumineux
  - Du sel
 
-Le Bouton Start/Pause permet de démarrer et de mettre en pause la simulation. Le bouton Next permet d'effectuer un pas-à-pas (un tick).
+Le Bouton Start/Pause permet de démarrer et de mettre en pause la simulation. Le bouton Next permet d'effectuer un pas-à-pas (un tick). 

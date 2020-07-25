@@ -23,7 +23,6 @@ Le dossier "dist" contient une version executable pour MacOs uniquement.
 ### Menu d'accueil
 
  Cette fenêtre vous permet de gérer les paramètres principaux de la simulation:
-
  - La taille réelle
  - La taille en case
  - Le temps par tick
@@ -33,29 +32,25 @@ Le dossier "dist" contient une version executable pour MacOs uniquement.
      style="width:70%" />
 
 #### Taille réelle
-
 La taille réelle représente la taille de l'environnement réel représenté dans la simulation.
 
 #### Taille en case
-
 La simulation utilise une grille pour représenter l'environnement. Cette grille est de taille $nxn$. Ici vous pouvez donc renseigner le nombre de case désiré.
 
  #### Temps par tick
-
  Un tick représente un tour de la simulation. Afin de gérer la vitesse et de tenir compte du temps écoulé, vous pouvez régler le nombre d'heures écoulées en un tour de la simulation. 
 
 
  ### Fenêtre principale
-
 La fenêtre principale se compose de deux parties. A gauche l'environnement simulé et à droite le panneau de contrôle divisé en cinq sections.
 
-<img src="documentation/main.png"
+<img src="main.png"
      alt="Menu"
      style="width:80%" />
 
 #### Légende
 
-<img src="documentation/legende.png"
+<img src="legende.png"
      alt="Menu"
      style="width:35%" />
 
@@ -65,12 +60,11 @@ La légende indique les couleurs des différents éléments qu'il est possible d
 
  #### Paramètres de la nourriture
 
-<img src="documentation/nourriture.png"
+<img src="nourriture.png"
      alt="Menu"
      style="width:35%" />
 
  La nourriture déposée dans la simulation est modélisée grâce à trois paramètres:
-
  - Un ratio qui représente la répartition protéines/glucides de la nourriture.
  - La concentration en nutriment de la nourriture.
  - La quantité de nourriture disponible
@@ -81,7 +75,7 @@ La légende indique les couleurs des différents éléments qu'il est possible d
 
  #### Paramètres d'environnement
 
-<img src="documentation/env.png"
+<img src="env.png"
      alt="Menu"
      style="width:35%" />
 
@@ -89,12 +83,11 @@ La légende indique les couleurs des différents éléments qu'il est possible d
 
  #### Boutons d'ajout et de contrôle
 
-<img src="documentation/controles.png"
+<img src="controles.png"
      alt="Menu"
      style="width:35%" />
 
  Vous pouvez utiliser le clic gauche pour déposer des éléments dans la simulation. Les quatre boutons d'ajout vous permettent de selectionner ce que vous voulez ajouter:
-
  - Un Blob
  - Une source de nourriture
  - Un point lumineux

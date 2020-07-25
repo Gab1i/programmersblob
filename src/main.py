@@ -12,9 +12,10 @@ from tkinter import messagebox
 
 
 if __name__ == "__main__":
-     splash = StartScreen()
-     """except:
+     try:
+          splash = StartScreen()
+     except:
           root = Tk()
           root.withdraw()
           messagebox.showerror("Erreur inconnue",
-                               "Ooops il semble qu'un problème soit survenu ! Le programme va être fermé.")"""
+                               "Ooops il semble qu'un problème soit survenu ! Le programme va être fermé.")

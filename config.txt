@@ -1,4 +1,4 @@
-tuto=1
+tuto=0
 color_world=#ededed
 color_blob=#e6d446
 color_sel=#ffffff

@@ -10,13 +10,18 @@ Bienvenue dans Rise of the Blob. Cette application vous permet de simuler diffé
 
 Ce projet a été développé sous Python 3.8.
 
-Pour lancer le projet commencez par télécharger les dépendances nécessaires
+Pour lancer le projet depuis les sources, téléchargez le dépôt :
 
- `$ pip install requirements.txt`
+`$ git clone https://github.com/Gab1i/programmersblob.git`
 
-Lancez ensuite le fichier `main.py`
+Placer vous dans le dossier
 
-`$ python main.py`
+`$ cd programmersblob`
+
+Lancez le fichier `main.py`
+
+`$ python3 main.py`
+
 
 ### MacOs
 

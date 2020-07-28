@@ -58,7 +58,7 @@
 		<key>argv_emulation</key>
 		<true/>
 		<key>emulate_shell_environment</key>
-		<false/>
+		<true/>
 		<key>no_chdir</key>
 		<false/>
 		<key>prefer_ppc</key>

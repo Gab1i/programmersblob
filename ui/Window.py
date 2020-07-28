@@ -244,13 +244,14 @@ class Window(Toplevel):
         self._tutoCanvas.bind('<Button-1>', self._loopTuto)
 
     def _loopTuto(self, evt):
-        if self._step_tuto == len(self._imagetutorial) - 1:
+        if self._step_tuto == 6:
             self._hideTuto()
         else:
             self._step_tuto += 1
             self._image.configure(file=self._imagetutorial[self._step_tuto])
 
     def _hideTuto(self):
+        self._step_tuto = 0
         list = self.pack_slaves()
         for l in list:
             l.forget()

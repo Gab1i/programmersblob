@@ -8,9 +8,9 @@ Bienvenue dans Rise of the Blob. Cette application vous permet de simuler diffé
 
 ## Installation
 
-Ce projet a été développé sous Python 3.8.
+Ce projet a été développé sous [https://www.python.org/downloads/release/python-385/](Python 3.8.5).
 
-Pour lancer le projet depuis les sources, téléchargez le dépôt :
+Pour lancer le projet depuis les sources, ouvrez un terminal, téléchargez le dépôt :
 
 `$ git clone https://github.com/Gab1i/programmersblob.git`
 
@@ -21,26 +21,6 @@ Placer vous dans le dossier
 Lancez le fichier `main.py`
 
 `$ python3 main.py`
-
-
-### MacOs
-
-Le dossier "dist" contient une version executable pour MacOs uniquement.
-Vous pouvez recréer un exécutable à l'aide de la commande `$ python setup_darwin.py py2app`
-
-#### Sécurité
-
-<p align="center">
-  <img width="40%" src="documentation/impossible.png">
-</p>
-
-
-Le fichier exécutable n'a pas été signé, par défaut, MacOs refuse d'ouvrir les exécutables non signés. Pour l'ouvrir, rendez-vous dans les paramètres de `Confidentialité & sécurité` de votre mac, puis cliquez sur `Ouvrir quand même`.
-
-<p align="center">
-  <img width="60%" src="documentation/securite.png">
-</p>
-
 
 
 ## Utilisation

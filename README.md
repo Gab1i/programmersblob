@@ -8,7 +8,7 @@ Bienvenue dans Rise of the Blob. Cette application vous permet de simuler diffé
 
 ## Installation
 
-Ce projet a été développé sous [https://www.python.org/downloads/release/python-385/](Python 3.8.5).
+Ce projet a été développé sous [Python 3.8.5](https://www.python.org/downloads/release/python-385/).
 
 Pour lancer le projet depuis les sources, ouvrez un terminal, téléchargez le dépôt :
 
